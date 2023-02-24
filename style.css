@@ -1,108 +1,94 @@
-html{
-    box-sizing: border-box;
-    height: 100%;
+let runningTotal = 0;
+let buffer = "0";
+let previosOperator;
+
+const screen = document.querySelector('.screen')
+
+function buttonClick(value){
+    if(isNaN(value)){
+        handleSymbol(value);
+    }
+    else{
+        handelNumber(value);
+    }
+    screen.innerText = buffer;
 }
 
-*,
-*::before,
-*::after{
-    box-sizing: inherit;
-    margin: 0;
-    padding: 0;
+function handleSymbol(symbol){
+    switch(symbol){
+        case 'C':
+            buffer = '0';
+            runningTotal = 0;
+            break;
+        case '=':
+            if(previosOperator === null){
+                return
+            }
+            flushOperation(parseInt(buffer));
+            previosOperator = null;
+            buffer = runningTotal;
+            runningTotal = 0;
+            break;
+        case '←':
+            if(buffer.length === 1){
+                buffer = '0';
+            }
+            else{
+                buffer = buffer.toString(0,buffer.length - 1);   
+            }
+            break;
+        case '+':
+        case '−':
+        case '×':
+        case '÷':
+            handleMath(symbol);
+            break;
+    }
 }
 
-body{
-    align-items: center;
-    background: linear-gradient(320deg, #eb92be, #ffef68, #66c9b4);
-    display: flex;
-    font-family: cursive,sans-serif;
-    font-display: swap;
-    height: inherit;
-    justify-content: center;
+function handleMath(symbol){
+    if(buffer === '0'){
+        return
+    }
+    const intBuffer = parseInt(buffer);
+    if(runningTotal === 0){
+        runningTotal = intBuffer;
+    }
+    else{
+        flushOperation(intBuffer);
+    }
+    previosOperator = symbol;
+    buffer = '0';
 }
 
-.wrapper{
-    backdrop-filter: blur(5.5px);
-    -webkit-backdrop-filter: blur(5.5px);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(35,35,35,0.1);
-    color: #232323;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    background: rgba(255, 255, 255, 0.30);
-    border: 1px solid rgba(255, 255, 255, 0.34);
-    flex-basis: 400px;
-    height: 530px;
-    padding: 20px 35px;
+function flushOperation(intBuffer){
+    if(previosOperator === '+'){
+        runningTotal += intBuffer;
+    }
+    else if(previosOperator === '−'){
+        runningTotal -= intBuffer;
+    }
+    else if(previosOperator === '×'){
+        runningTotal *= intBuffer;
+    }
+    else if(previosOperator === '÷'){
+        runningTotal /= intBuffer;
+    }
 }
 
-.screen{
-    backdrop-filter: blur(5.5px);
-    -webkit-backdrop-filter: blur(5.5px);
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.01);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(35,35,35,0.1);
-    color: #232323;
-    font-size: 35px;
-    overflow: auto;
-    padding: 20px;
-    text-align: right;
-    width: 330px;
+function handelNumber(numberString){
+    if(buffer === '0'){
+        buffer = numberString;
+    }
+    else{
+        buffer += numberString;
+    }
 }
 
-.calc-buttons-row{
-    display: flex;
-    justify-content: space-between;
-    margin: 5% 0;
+function init(){
+    document.querySelector('.calc-button').addEventListener('click',function(event){
+        buttonClick(event.target.innerText);
+    })
 }
 
-.calc-buttons{
-    backdrop-filter: blur(5.5px);
-    -webkit-backdrop-filter: blur(5.5px);
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.01);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(35,35,35,0.1);
-    color: #232323;
-    flex-basis:20%;
-    font-family: inherit;
-    font-size: 24px;
-    height: 60px;
-}
-
-.calc-buttons:last-child{
-    backdrop-filter: blur(5.5px);
-    -webkit-backdrop-filter: blur(5.5px);
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.01);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(35,35,35,0.1);
-    color: beige;
-    background: #ff2172;
-}
-
-.calc-buttons:last-child:hover{
-    background-color: inherit;
-    color: inherit;
-}
-
-.calc-buttons:hover{
-    background-color: inherit;
-}
-
-.calc-buttons:active{
-    background-color: #ffef68;
-}
-
-.calc-buttons:last-child:active{
-    background-color: #ffef68;
-}
-
-.double{
-    flex-basis: 47%;
-}
-
-.triple{
-    flex-basis: 73%;
-}
+init();
